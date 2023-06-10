@@ -18,6 +18,13 @@ public static class PetEndpoints
         .WithName("GetAllPets")
         .WithOpenApi();
 
+        group.MapGet("/take/{quantity}", async ([FromServices] YourDbContext db, int quantity) =>
+        {
+            return await db.Pets.Take(quantity).ToListAsync();
+        })
+        .WithName("GetTakedPets")
+        .WithOpenApi();
+
         group.MapGet("/{id}", async Task<Results<Ok<Pet>, NotFound>> (int id, [FromServices] YourDbContext db) =>
         {
             return await db.Pets.AsNoTracking()
