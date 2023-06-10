@@ -11,14 +11,14 @@ public static class PetEndpoints
     {
         var group = routes.MapGroup("/api/Pet").WithTags(nameof(Pet));
 
-        group.MapGet("/", async ([FromServices] myContext db) =>
+        group.MapGet("/", async ([FromServices] YourDbContext db) =>
         {
             return await db.Pets.ToListAsync();
         })
         .WithName("GetAllPets")
         .WithOpenApi();
 
-        group.MapGet("/{id}", async Task<Results<Ok<Pet>, NotFound>> (int id, [FromServices] myContext db) =>
+        group.MapGet("/{id}", async Task<Results<Ok<Pet>, NotFound>> (int id, [FromServices] YourDbContext db) =>
         {
             return await db.Pets.AsNoTracking()
                 .FirstOrDefaultAsync(model => model.Id == id)
@@ -29,7 +29,7 @@ public static class PetEndpoints
         .WithName("GetPetById")
         .WithOpenApi();
 
-        group.MapPut("/{id}", async Task<Results<Ok, NotFound>> (int id, Pet pet, [FromServices] myContext db) =>
+        group.MapPut("/{id}", async Task<Results<Ok, NotFound>> (int id, Pet pet, [FromServices] YourDbContext db) =>
         {
             var affected = await db.Pets
                 .Where(model => model.Id == id)
@@ -44,7 +44,7 @@ public static class PetEndpoints
         .WithName("UpdatePet")
         .WithOpenApi();
 
-        group.MapPost("/", async (Pet pet, [FromServices] myContext db) =>
+        group.MapPost("/", async (Pet pet, [FromServices] YourDbContext db) =>
         {
             db.Pets.Add(pet);
             await db.SaveChangesAsync();
@@ -53,7 +53,7 @@ public static class PetEndpoints
         .WithName("CreatePet")
         .WithOpenApi();
 
-        group.MapDelete("/{id}", async Task<Results<Ok, NotFound>> (int id, [FromServices] myContext db) =>
+        group.MapDelete("/{id}", async Task<Results<Ok, NotFound>> (int id, [FromServices] YourDbContext db) =>
         {
             var affected = await db.Pets
                 .Where(model => model.Id == id)

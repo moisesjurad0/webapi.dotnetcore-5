@@ -1,4 +1,10 @@
-﻿using myAPI;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
+using Microsoft.Extensions.DependencyInjection;
+using myAPI;
+using System;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,7 +12,30 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+//builder.Services.AddSingleton<DbContext, YourDbContext>();
+//builder.Services.AddSingleton<YourDbContext>();
+builder.Services.AddDbContext<YourDbContext>(options => options.UseNpgsql("Server=db;Port=5432;Database=mydatabase;User Id=postgres;Password=password;"), ServiceLifetime.Singleton);
 var app = builder.Build();
+
+
+
+
+
+// Run the migration commands
+var contextFactory = new YourDbContextFactory();
+using (var dbContext = contextFactory.CreateDbContext(args))
+{
+    dbContext.Database.Migrate();
+}
+
+// Continue running your application
+
+
+
+
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
