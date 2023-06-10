@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  myapi:
+    image: ${DOCKER_REGISTRY-}myapi
+    build:
+      context: .
+      dockerfile: myAPI/Dockerfile
