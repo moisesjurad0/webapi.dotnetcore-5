@@ -25,7 +25,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<YourDbContext>();
-    dbContext.Database.EnsureDeleted(); // or dbContext.Database.EnsureCreated();
+    //dbContext.Database.EnsureDeleted(); // or dbContext.Database.EnsureCreated();
     dbContext.Database.EnsureCreated(); // or dbContext.Database.EnsureCreated();
 
     // Additional initialization logic if needed
