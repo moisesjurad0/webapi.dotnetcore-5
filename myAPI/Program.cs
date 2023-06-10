@@ -1,9 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.Extensions.DependencyInjection;
 using myAPI;
-using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,26 +8,29 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
+// Build the configuration
+IConfiguration configuration = new ConfigurationBuilder()
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddEnvironmentVariables()//.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .Build();
+// Retrieve the connection string from the configuration
+string connectionString = configuration["CONNECTION_STRING"];// configuration.GetConnectionString("YourConnectionStringKey");
 //builder.Services.AddSingleton<DbContext, YourDbContext>();
-//builder.Services.AddSingleton<YourDbContext>();
-builder.Services.AddDbContext<YourDbContext>(options => options.UseNpgsql("Server=db;Port=5432;Database=mydatabase;User Id=postgres;Password=password;"), ServiceLifetime.Singleton);
+builder.Services.AddDbContext<YourDbContext>(options => options.UseNpgsql(connectionString), ServiceLifetime.Singleton);
+
 var app = builder.Build();
 
 
-
-
-
-// Run the migration commands
-var contextFactory = new YourDbContextFactory();
-using (var dbContext = contextFactory.CreateDbContext(args))
+// Initialize the database
+using (var scope = app.Services.CreateScope())
 {
-    dbContext.Database.Migrate();
+    var dbContext = scope.ServiceProvider.GetRequiredService<YourDbContext>();
+    dbContext.Database.EnsureDeleted(); // or dbContext.Database.EnsureCreated();
+    dbContext.Database.EnsureCreated(); // or dbContext.Database.EnsureCreated();
+
+    // Additional initialization logic if needed
+    dbContext.SaveChanges();
 }
-
-// Continue running your application
-
-
 
 
 
