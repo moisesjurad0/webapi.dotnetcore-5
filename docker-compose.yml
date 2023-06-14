@@ -10,6 +10,15 @@ services:
       - CONNECTION_STRING=Server=db;Port=5432;Database=mydatabase;User Id=postgres;Password=password;
     depends_on:
       - db
+  myweb:
+    image: ${DOCKER_REGISTRY-}myweb
+    build:
+      context: .
+      dockerfile: WebApplication1/Dockerfile
+    environment:
+      - CONNECTION_STRING=Server=db;Port=5432;Database=mydatabase;User Id=postgres;Password=password;
+    depends_on:
+      - db
   db:
     image: postgres
     environment:
