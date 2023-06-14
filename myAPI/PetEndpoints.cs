@@ -2,30 +2,31 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace myAPI;
 
 public static class PetEndpoints
 {
-    public static void MapPetEndpoints (this IEndpointRouteBuilder routes)
+    public static void MapPetEndpoints(this IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup("/api/Pet").WithTags(nameof(Pet));
 
-        group.MapGet("/", async ([FromServices] YourDbContext db) =>
+        group.MapGet("/", [Authorize] async ([FromServices] YourDbContext db) =>
         {
             return await db.Pets.ToListAsync();
         })
         .WithName("GetAllPets")
         .WithOpenApi();
 
-        group.MapGet("/take/{quantity}", async ([FromServices] YourDbContext db, int quantity) =>
+        group.MapGet("/take/{quantity}", [Authorize] async ([FromServices] YourDbContext db, int quantity) =>
         {
             return await db.Pets.Take(quantity).ToListAsync();
         })
         .WithName("GetTakedPets")
         .WithOpenApi();
 
-        group.MapGet("/{id}", async Task<Results<Ok<Pet>, NotFound>> (int id, [FromServices] YourDbContext db) =>
+        group.MapGet("/{id}", [Authorize] async Task<Results<Ok<Pet>, NotFound>> (int id, [FromServices] YourDbContext db) =>
         {
             return await db.Pets.AsNoTracking()
                 .FirstOrDefaultAsync(model => model.Id == id)
@@ -36,7 +37,7 @@ public static class PetEndpoints
         .WithName("GetPetById")
         .WithOpenApi();
 
-        group.MapPut("/{id}", async Task<Results<Ok, NotFound>> (int id, Pet pet, [FromServices] YourDbContext db) =>
+        group.MapPut("/{id}", [Authorize] async Task<Results<Ok, NotFound>> (int id, Pet pet, [FromServices] YourDbContext db) =>
         {
             var affected = await db.Pets
                 .Where(model => model.Id == id)
@@ -51,16 +52,16 @@ public static class PetEndpoints
         .WithName("UpdatePet")
         .WithOpenApi();
 
-        group.MapPost("/", async (Pet pet, [FromServices] YourDbContext db) =>
+        group.MapPost("/", [Authorize] async (Pet pet, [FromServices] YourDbContext db) =>
         {
             db.Pets.Add(pet);
             await db.SaveChangesAsync();
-            return TypedResults.Created($"/api/Pet/{pet.Id}",pet);
+            return TypedResults.Created($"/api/Pet/{pet.Id}", pet);
         })
         .WithName("CreatePet")
         .WithOpenApi();
 
-        group.MapDelete("/{id}", async Task<Results<Ok, NotFound>> (int id, [FromServices] YourDbContext db) =>
+        group.MapDelete("/{id}", [Authorize] async Task<Results<Ok, NotFound>> (int id, [FromServices] YourDbContext db) =>
         {
             var affected = await db.Pets
                 .Where(model => model.Id == id)
